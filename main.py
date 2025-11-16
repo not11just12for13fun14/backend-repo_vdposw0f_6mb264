@@ -1,6 +1,8 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
 
 app = FastAPI()
 
@@ -12,6 +14,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class Module(BaseModel):
+    id: str
+    title: str
+    description: str
+    highlights: List[str]
+    kpis: Optional[dict] = None
+
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI Backend!"}
@@ -19,6 +28,77 @@ def read_root():
 @app.get("/api/hello")
 def hello():
     return {"message": "Hello from the backend API!"}
+
+@app.get("/api/modules", response_model=List[Module])
+def get_modules():
+    return [
+        Module(
+            id="patient-management",
+            title="Patient Management",
+            description="Kelola data pasien secara terpusat: profil, riwayat medis, alergi, dan kontak darurat.",
+            highlights=[
+                "Profil pasien terpadu",
+                "Riwayat kunjungan dan diagnosis",
+                "Peringatan alergi & kondisi kronis",
+            ],
+            kpis={"activePatients": 1240, "todayVisits": 36, "alerts": 5},
+        ),
+        Module(
+            id="patient-registration",
+            title="Patient Registration",
+            description="Pendaftaran pasien yang cepat dengan validasi data & pencarian rekam medis otomatis.",
+            highlights=[
+                "Pendaftaran 2 menit",
+                "Validasi NIK/ID otomatis",
+                "Pencocokan MRN untuk pasien lama",
+            ],
+            kpis={"avgRegTime": "1m 45s", "queue": 12, "completedToday": 58},
+        ),
+        Module(
+            id="exam-scheduling",
+            title="Exam Scheduling",
+            description="Penjadwalan pemeriksaan yang cerdas dengan deteksi bentrok dan antrian prioritas.",
+            highlights=[
+                "Calendar drag & drop",
+                "Deteksi bentrok otomatis",
+                "Notifikasi SMS/Email",
+            ],
+            kpis={"scheduledToday": 42, "noShows": 2, "utilization": "86%"},
+        ),
+        Module(
+            id="procedure-management",
+            title="Procedure Management",
+            description="Standarisasi prosedur klinis dengan checklist, persetujuan, dan pelacakan status.",
+            highlights=[
+                "Template SOP",
+                "Checklist pra-prosedur",
+                "Audit trail lengkap",
+            ],
+            kpis={"inProgress": 14, "completed": 128, "breaches": 1},
+        ),
+        Module(
+            id="diagnostic-reporting",
+            title="Diagnostic Reporting",
+            description="Pelaporan diagnostik cepat dengan template cerdas dan auto-phrasing.",
+            highlights=[
+                "Template laporan dinamis",
+                "Auto-phrasing & voice dictation",
+                "Penandatanganan elektronik",
+            ],
+            kpis={"turnaround": "3h 20m", "pendingSign": 6, "todayReports": 31},
+        ),
+        Module(
+            id="image-archiving",
+            title="Image Archiving",
+            description="Arsip gambar medis (PACS) aman dengan pencarian cepat dan kontrol akses granular.",
+            highlights=[
+                "Viewer DICOM terintegrasi",
+                "Tagging & pencarian cepat",
+                "Retensi & enkripsi data",
+            ],
+            kpis={"studies": 9824, "storageUsed": "1.8 TB", "shared": 27},
+        ),
+    ]
 
 @app.get("/test")
 def test_database():
